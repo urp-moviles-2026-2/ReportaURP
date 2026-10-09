@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+    alignSelf: "flex-start",
   },
   active: {
     backgroundColor: colors.primaryLight,
