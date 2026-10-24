@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
@@ -35,6 +36,7 @@ const MIS_REPORTES = [
 
 export default function PerfilScreen() {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [reportes, setReportes] = useState(MIS_REPORTES);
 
   const toggleLike = (id) => {
@@ -52,7 +54,7 @@ export default function PerfilScreen() {
   const renderHeader = () => (
     <View>
       {/* Banner de cabecera con color cálido degradado */}
-      <View style={styles.banner} />
+      <View style={[styles.banner, { height: 120 + insets.top }]} />
 
       <View style={styles.profileBody}>
         {/* Avatar redondo */}
@@ -187,7 +189,6 @@ export default function PerfilScreen() {
 
 const styles = StyleSheet.create({
   banner: {
-    height: 120,
     backgroundColor: '#F5A623',
   },
   profileBody: {

@@ -42,8 +42,6 @@ const Tabs = createBottomTabNavigator({
       backgroundColor: colors.bgCard,
       borderTopColor: colors.borderLight,
       borderTopWidth: 1,
-      height: 60,
-      paddingTop: 6,
     },
   },
   screens: {

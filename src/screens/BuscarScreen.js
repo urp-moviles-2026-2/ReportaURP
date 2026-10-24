@@ -1,4 +1,5 @@
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
@@ -14,7 +15,7 @@ export default function BuscarScreen() {
   const navigation = useNavigation();
 
   return (
-    <View style={common.screenPadded}>
+    <SafeAreaView style={common.screenPadded} edges={['top']}>
       {/* Encabezado */}
       <Text style={[typography.h1, { marginBottom: spacing.xs }]}>Explorar</Text>
       <Text style={[typography.bodySmall, { marginBottom: spacing.md }]}>
@@ -62,7 +63,7 @@ export default function BuscarScreen() {
       >
         <Ionicons name="add" size={26} color="#FFFFFF" />
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 
