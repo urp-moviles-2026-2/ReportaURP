@@ -2,6 +2,7 @@ import { View, StyleSheet } from 'react-native';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import InicioScreen from './src/screens/InicioScreen';
@@ -38,6 +39,7 @@ const Tabs = createBottomTabNavigator({
   screenOptions: {
     headerShown: false,
     tabBarShowLabel: false,
+    tabBarLabelPosition: 'below-icon',
     tabBarStyle: {
       backgroundColor: colors.bgCard,
       borderTopColor: colors.borderLight,
@@ -94,5 +96,9 @@ const styles = StyleSheet.create({
 const Navigation = createStaticNavigation(RootStack);
 
 export default function App() {
-  return <Navigation />;
+  return (
+    <SafeAreaProvider>
+      <Navigation />
+    </SafeAreaProvider>
+  );
 }

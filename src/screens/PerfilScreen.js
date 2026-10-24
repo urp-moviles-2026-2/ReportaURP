@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -37,6 +37,7 @@ const MIS_REPORTES = [
 export default function PerfilScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const [reportes, setReportes] = useState(MIS_REPORTES);
 
   const toggleLike = (id) => {
@@ -54,7 +55,7 @@ export default function PerfilScreen() {
   const renderHeader = () => (
     <View>
       {/* Banner de cabecera con color cálido degradado */}
-      <View style={[styles.banner, { height: 120 + insets.top }]} />
+      <View style={[styles.banner, { height: height * 0.15 + insets.top }]} />
 
       <View style={styles.profileBody}>
         {/* Avatar redondo */}
@@ -172,12 +173,16 @@ export default function PerfilScreen() {
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={renderHeader}
         renderItem={renderItem}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingLeft: insets.left, paddingRight: insets.right },
+        ]}
         ItemSeparatorComponent={() => <View style={styles.postDivider} />}
       />
 
       {/* Botón flotante '+' en la esquina inferior derecha */}
       <Pressable
-        style={styles.fab}
+        style={[styles.fab, { marginRight: insets.right }]}
         onPress={() => navigation.navigate('NuevoReporte')}
         hitSlop={10}
       >
@@ -190,6 +195,9 @@ export default function PerfilScreen() {
 const styles = StyleSheet.create({
   banner: {
     backgroundColor: '#F5A623',
+  },
+  listContent: {
+    paddingBottom: spacing.xxl * 2,
   },
   profileBody: {
     paddingHorizontal: spacing.md,

@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
@@ -8,6 +16,7 @@ export default function DetalleReporteScreen() {
   const route = useRoute();
   const id = route.params?.id ?? 1;
   const navigation = useNavigation();
+  const { width, height } = useWindowDimensions();
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(204);
 
@@ -60,7 +69,7 @@ export default function DetalleReporteScreen() {
           source={{
             uri: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
           }}
-          style={styles.image}
+          style={[styles.image, { height: Math.min(width, height) * 0.6 }]}
         />
         <View style={styles.locationPill}>
           <Ionicons name="location" size={13} color="#FFF" style={{ marginRight: 4 }} />
@@ -118,7 +127,6 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 220,
     borderRadius: radius.md,
   },
   locationPill: {

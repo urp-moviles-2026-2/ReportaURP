@@ -1,8 +1,18 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
+import { getFeedColumns } from '../utils/breakpoints';
 
 const POSTS_INICIALES = [
   {
@@ -36,6 +46,9 @@ const POSTS_INICIALES = [
 
 export default function InicioScreen() {
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const columns = getFeedColumns(width);
   const [posts, setPosts] = useState(POSTS_INICIALES);
   const [activeTab, setActiveTab] = useState('paraTi');
 
@@ -57,7 +70,7 @@ export default function InicioScreen() {
 
   const renderPost = ({ item }) => (
     <Pressable
-      style={styles.postCard}
+      style={[styles.postCard, { maxWidth: `${100 / columns}%` }]}
       onPress={() => navigation.navigate('DetalleReporte', { id: item.id })}
     >
       <View style={common.row}>
@@ -174,15 +187,21 @@ export default function InicioScreen() {
       </View>
 
       <FlatList
+        key={columns}
         data={posts}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderPost}
+        numColumns={columns}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingLeft: insets.left, paddingRight: insets.right },
+        ]}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
 
       {/* Botón flotante '+' en la esquina inferior derecha */}
       <Pressable
-        style={styles.fab}
+        style={[styles.fab, { marginRight: insets.right }]}
         onPress={() => navigation.navigate('NuevoReporte')}
         hitSlop={10}
       >
@@ -218,7 +237,11 @@ const styles = StyleSheet.create({
   topTabTextInactive: {
     color: colors.textTertiary,
   },
+  listContent: {
+    paddingBottom: spacing.xxl * 2,
+  },
   postCard: {
+    flex: 1,
     backgroundColor: colors.bgCard,
     padding: spacing.md,
   },
@@ -239,7 +262,7 @@ const styles = StyleSheet.create({
   },
   postImage: {
     width: '100%',
-    height: 190,
+    aspectRatio: 16 / 9,
     borderRadius: radius.md,
   },
   locationBadge: {

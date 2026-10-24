@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
@@ -13,9 +13,10 @@ const TENDENCIAS = [
 
 export default function BuscarScreen() {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={common.screenPadded} edges={['top']}>
+    <SafeAreaView style={common.screenPadded} edges={['top', 'left', 'right']}>
       {/* Encabezado */}
       <Text style={[typography.h1, { marginBottom: spacing.xs }]}>Explorar</Text>
       <Text style={[typography.bodySmall, { marginBottom: spacing.md }]}>
@@ -57,7 +58,7 @@ export default function BuscarScreen() {
 
       {/* Botón flotante '+' en la esquina inferior derecha */}
       <Pressable
-        style={styles.fab}
+        style={[styles.fab, { marginRight: insets.right }]}
         onPress={() => navigation.navigate('NuevoReporte')}
         hitSlop={10}
       >
