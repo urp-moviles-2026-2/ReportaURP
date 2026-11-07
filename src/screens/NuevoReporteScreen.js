@@ -1,29 +1,49 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import {
   View,
   Text,
-  TextInput,
   Pressable,
   KeyboardAvoidingView,
+  ScrollView,
+  Alert,
   Platform,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
+import { reporteSchema, reporteVacio, CATEGORIAS } from '../schemas/reporteSchema';
+import FormField from '../components/FormField';
+import ChipSelectField from '../components/ChipSelectField';
 
 export default function NuevoReporteScreen() {
   const navigation = useNavigation();
-  const [texto, setTexto] = useState('');
+  const descripcionRef = useRef(null);
+  const ubicacionRef = useRef(null);
 
-  const MAX_CHARS = 280;
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(reporteSchema),
+    defaultValues: reporteVacio,
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+  });
 
-  const handlePublicar = () => {
-    if (texto.trim().length > 0) {
-      console.log('Publicar reporte:', texto);
-      navigation.goBack();
-    }
+  const descripcion = watch('descripcion');
+
+  const onSubmit = (datos) => {
+    console.log('Publicar reporte:', datos);
+    Alert.alert('Reporte enviado', 'Tu reporte se registró correctamente.');
+    reset();
+    navigation.goBack();
   };
 
   return (
@@ -41,15 +61,15 @@ export default function NuevoReporteScreen() {
           <Pressable
             style={[
               styles.publishBtn,
-              texto.trim().length > 0 ? styles.publishBtnActive : styles.publishBtnDisabled,
+              isSubmitting ? styles.publishBtnDisabled : styles.publishBtnActive,
             ]}
-            onPress={handlePublicar}
-            disabled={texto.trim().length === 0}
+            onPress={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
           >
             <Text
               style={[
                 styles.publishText,
-                texto.trim().length > 0 ? styles.publishTextActive : styles.publishTextDisabled,
+                isSubmitting ? styles.publishTextDisabled : styles.publishTextActive,
               ]}
             >
               Publicar
@@ -57,8 +77,11 @@ export default function NuevoReporteScreen() {
           </Pressable>
         </View>
 
-        {/* Cuerpo del reporte: Avatar y TextInput sin bordes naranjas */}
-        <View style={styles.body}>
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={styles.bodyContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={[common.row, { marginBottom: spacing.md }]}>
             <View style={[common.avatarSm, { backgroundColor: '#F7B731' }]}>
               <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 13 }}>GC</Text>
@@ -69,19 +92,41 @@ export default function NuevoReporteScreen() {
             </View>
           </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="¿Qué quieres reportar o compartir?"
-            placeholderTextColor={colors.textTertiary}
-            multiline
-            value={texto}
-            onChangeText={setTexto}
-            maxLength={MAX_CHARS}
+          <FormField
+            control={control}
+            name="titulo"
+            label="Título"
+            placeholder="¿Qué quieres reportar?"
+            maxLength={60}
             autoFocus
-            underlineColorAndroid="transparent"
-            selectionColor={colors.primary}
+            returnKeyType="next"
+            onSubmitEditing={() => descripcionRef.current?.focus()}
           />
-        </View>
+
+          <FormField
+            ref={descripcionRef}
+            control={control}
+            name="descripcion"
+            label="Descripción"
+            placeholder="Cuéntanos más detalles (opcional)"
+            multiline
+            maxLength={300}
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => ubicacionRef.current?.focus()}
+          />
+
+          <FormField
+            ref={ubicacionRef}
+            control={control}
+            name="ubicacion"
+            label="Ubicación"
+            placeholder="Ej. Pabellón B, segundo piso"
+            returnKeyType="done"
+          />
+
+          <ChipSelectField control={control} name="categoria" label="Categoría" options={CATEGORIAS} />
+        </ScrollView>
 
         {/* Barra inferior: íconos pequeños de Galería, Cámara, Ubicación y contador */}
         <View style={styles.bottomToolbar}>
@@ -98,7 +143,7 @@ export default function NuevoReporteScreen() {
           </View>
 
           <Text style={[typography.caption, { color: colors.textTertiary }]}>
-            {texto.length}/{MAX_CHARS}
+            {descripcion.length}/300
           </Text>
         </View>
       </KeyboardAvoidingView>
@@ -152,20 +197,9 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    padding: spacing.md,
   },
-  input: {
-    flex: 1,
-    fontSize: 17,
-    lineHeight: 24,
-    color: colors.textPrimary,
-    textAlignVertical: 'top',
-    padding: 0,
-    borderWidth: 0,
-    // Elimina el outline naranja en browsers/web y no genera borde nativo
-    ...Platform.select({
-      web: { outlineStyle: 'none' },
-    }),
+  bodyContent: {
+    padding: spacing.md,
   },
   bottomToolbar: {
     flexDirection: 'row',
