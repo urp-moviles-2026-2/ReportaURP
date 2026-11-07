@@ -12,15 +12,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
 import { reporteSchema, reporteVacio, CATEGORIAS } from '../schemas/reporteSchema';
+import { agregarReporte } from '../store/reportesSlice';
 import FormField from '../components/FormField';
 import ChipSelectField from '../components/ChipSelectField';
 
 export default function NuevoReporteScreen() {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const descripcionRef = useRef(null);
   const ubicacionRef = useRef(null);
 
@@ -41,6 +44,7 @@ export default function NuevoReporteScreen() {
 
   const onSubmit = (datos) => {
     console.log('Publicar reporte:', datos);
+    dispatch(agregarReporte(datos));
     Alert.alert('Reporte enviado', 'Tu reporte se registró correctamente.');
     reset();
     navigation.goBack();

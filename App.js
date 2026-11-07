@@ -1,9 +1,9 @@
-import { View, StyleSheet } from 'react-native';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Provider } from 'react-redux';
 
 import InicioScreen from './src/screens/InicioScreen';
 import DetalleReporteScreen from './src/screens/DetalleReporteScreen';
@@ -12,20 +12,9 @@ import BuscarScreen from './src/screens/BuscarScreen';
 import PerfilScreen from './src/screens/PerfilScreen';
 import LoginScreen from './src/screens/LoginScreen';
 
+import { store } from './src/store';
+import { SesionProvider, useSesion } from './src/context/SesionContext';
 import { colors, headerStyle } from './src/theme';
-
-// Píldora para el ícono activo en el tab bar (estilo mockup)
-function TabIcon({ name, focused }) {
-  return (
-    <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-      <Ionicons
-        name={focused ? name : `${name}-outline`}
-        size={22}
-        color={focused ? colors.primary : colors.textTertiary}
-      />
-    </View>
-  );
-}
 
 const InicioStack = createNativeStackNavigator({
   screenOptions: headerStyle,
@@ -39,7 +28,8 @@ const Tabs = createBottomTabNavigator({
   screenOptions: {
     headerShown: false,
     tabBarShowLabel: false,
-    tabBarLabelPosition: 'below-icon',
+    tabBarActiveTintColor: colors.tabActive,
+    tabBarInactiveTintColor: colors.tabInactive,
     tabBarStyle: {
       backgroundColor: colors.bgCard,
       borderTopColor: colors.borderLight,
@@ -50,46 +40,47 @@ const Tabs = createBottomTabNavigator({
     InicioTab: {
       screen: InicioStack,
       options: {
-        tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
+        tabBarIcon: ({ color, size, focused }) => (
+          <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
+        ),
       },
     },
     BuscarTab: {
       screen: BuscarScreen,
       options: {
-        tabBarIcon: ({ focused }) => <TabIcon name="search" focused={focused} />,
+        tabBarIcon: ({ color, size, focused }) => (
+          <Ionicons name={focused ? 'search' : 'search-outline'} size={size} color={color} />
+        ),
       },
     },
     PerfilTab: {
       screen: PerfilScreen,
       options: {
-        tabBarIcon: ({ focused }) => <TabIcon name="person" focused={focused} />,
+        tabBarIcon: ({ color, size, focused }) => (
+          <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
+        ),
       },
     },
   },
 });
 
+// Condiciones para la API estática: la app principal solo existe con sesión
+const useEstaLogueado = () => useSesion().estaLogueado;
+const useNoEstaLogueado = () => !useSesion().estaLogueado;
+
 const RootStack = createNativeStackNavigator({
   screens: {
-    Main: { screen: Tabs, options: { headerShown: false } },
+    Main: { if: useEstaLogueado, screen: Tabs, options: { headerShown: false } },
     NuevoReporte: {
+      if: useEstaLogueado,
       screen: NuevoReporteScreen,
       options: { presentation: 'modal', headerShown: false },
     },
     Login: {
+      if: useNoEstaLogueado,
       screen: LoginScreen,
-      options: { presentation: 'modal', headerShown: false },
+      options: { headerShown: false },
     },
-  },
-});
-
-const styles = StyleSheet.create({
-  tabIconContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  tabIconActive: {
-    backgroundColor: colors.primaryLight,
   },
 });
 
@@ -98,7 +89,11 @@ const Navigation = createStaticNavigation(RootStack);
 export default function App() {
   return (
     <SafeAreaProvider>
-      <Navigation />
+      <Provider store={store}>
+        <SesionProvider>
+          <Navigation />
+        </SesionProvider>
+      </Provider>
     </SafeAreaProvider>
   );
 }

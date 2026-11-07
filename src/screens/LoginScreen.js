@@ -8,27 +8,18 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, typography, spacing, radius, common } from '../theme';
+import { colors, spacing, radius, common } from '../theme';
+import { useSesion } from '../context/SesionContext';
 
 export default function LoginScreen() {
-  const navigation = useNavigation();
+  const { iniciarSesion } = useSesion();
   const [tab, setTab] = useState('login'); // 'login' | 'register'
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Botón cerrar modal */}
-        <Pressable
-          style={styles.closeBtn}
-          onPress={() => navigation.goBack()}
-          hitSlop={10}
-        >
-          <Ionicons name="close" size={24} color={colors.textPrimary} />
-        </Pressable>
-
         {/* Tarjeta ilustrativa sutil superior (estilo mockup) */}
         <View style={styles.topCardContainer}>
           <View style={styles.miniCard}>
@@ -121,10 +112,14 @@ export default function LoginScreen() {
         {/* Botón principal */}
         <Pressable
           style={styles.submitBtn}
-          onPress={() => {
-            console.log('Login exitoso');
-            navigation.goBack();
-          }}
+          // Temporal: entra con datos de prueba hasta tener los formularios reales
+          onPress={() =>
+            iniciarSesion({
+              nombre: 'Gerald Casas',
+              correo: 'GeraldCasas@urp.edu.pe',
+              usuario: '@GeraldCasas',
+            })
+          }
         >
           <Text style={styles.submitBtnText}>
             {tab === 'login' ? 'Entrar a Reporta URP →' : 'Registrarme →'}
@@ -165,10 +160,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
-  },
-  closeBtn: {
-    alignSelf: 'flex-start',
-    marginBottom: spacing.sm,
   },
   topCardContainer: {
     alignItems: 'center',

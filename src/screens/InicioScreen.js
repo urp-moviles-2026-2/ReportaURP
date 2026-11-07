@@ -10,63 +10,20 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, typography, spacing, radius, common } from '../theme';
 import { getFeedColumns } from '../utils/breakpoints';
-
-const POSTS_INICIALES = [
-  {
-    id: 1,
-    author: 'Sofia Orbe',
-    username: '@sofiaorbe',
-    time: '2 h',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
-    text: 'Luminaria reparada en el Pabellón A. La iluminación en la tarde quedó excelente para el camino de salida.',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-    location: 'Campus Central URP',
-    comments: 26,
-    reposts: 11,
-    likes: 204,
-    liked: false,
-  },
-  {
-    id: 42,
-    author: 'Nicolás Barros',
-    username: '@nbarros',
-    verified: true,
-    time: '18 min',
-    avatar: 'NB',
-    text: 'Reportado el proyector del Aula 301. Ya vinieron de soporte técnico a revisar el cableado HDMI.',
-    comments: 18,
-    reposts: 42,
-    likes: 318,
-    liked: false,
-  },
-];
+import { selectReportes, alternarLike } from '../store/reportesSlice';
 
 export default function InicioScreen() {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const columns = getFeedColumns(width);
-  const [posts, setPosts] = useState(POSTS_INICIALES);
+  const posts = useSelector(selectReportes);
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('paraTi');
-
-  const toggleLike = (id) => {
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          const liked = !p.liked;
-          return {
-            ...p,
-            liked,
-            likes: liked ? p.likes + 1 : p.likes - 1,
-          };
-        }
-        return p;
-      })
-    );
-  };
 
   const renderPost = ({ item }) => (
     <Pressable
@@ -99,6 +56,13 @@ export default function InicioScreen() {
 
       <Text style={[typography.body, { marginTop: spacing.sm }]}>{item.text}</Text>
 
+      {!item.image && item.location ? (
+        <View style={[common.row, styles.locationLine]}>
+          <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
+          <Text style={styles.locationLineText}>{item.location}</Text>
+        </View>
+      ) : null}
+
       {item.image && (
         <View style={styles.imageContainer}>
           <Image source={{ uri: item.image }} style={styles.postImage} />
@@ -126,7 +90,7 @@ export default function InicioScreen() {
           <Text style={[typography.caption, { marginLeft: 6 }]}>{item.reposts}</Text>
         </Pressable>
 
-        <Pressable style={common.row} hitSlop={8} onPress={() => toggleLike(item.id)}>
+        <Pressable style={common.row} hitSlop={8} onPress={() => dispatch(alternarLike(item.id))}>
           <Ionicons
             name={item.liked ? 'heart' : 'heart-outline'}
             size={19}
@@ -264,6 +228,14 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 16 / 9,
     borderRadius: radius.md,
+  },
+  locationLine: {
+    marginTop: spacing.sm,
+    gap: 4,
+  },
+  locationLineText: {
+    fontSize: 12,
+    color: colors.textSecondary,
   },
   locationBadge: {
     position: 'absolute',
